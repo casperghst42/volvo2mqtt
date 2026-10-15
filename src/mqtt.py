@@ -442,7 +442,7 @@ def update_ha_device(entity, vin, state):
         mqtt_client.subscribe(command_topic)
 
     mqtt_client.publish(
-        f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
+        f"homeassistant/{entity['domain']}/volvoAAOS2mqtt_{vin}_{entity['id']}/config",
         json.dumps(config),
         retain=True
     )
@@ -492,7 +492,7 @@ def create_ha_devices():
                 config["url_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/image_url"
 
             mqtt_client.publish(
-                f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
+                f"homeassistant/{entity['domain']}/volvoAAOS2mqtt_{vin}_{entity['id']}/config",
                 json.dumps(config),
                 retain=True
             )
