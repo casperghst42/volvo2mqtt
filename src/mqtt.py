@@ -14,7 +14,7 @@ from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
     CAR_UNLOCK_URL, availability_topic, icon_states, old_entity_ids, otp_mqtt_topic
 
-mqtt_client: mqtt.Client
+mqtt_client: mqtt.Client = None
 subscribed_topics = []
 assumed_climate_state = {}
 last_data_update = None
@@ -60,6 +60,7 @@ def connect():
 
 
 def create_otp_input():
+    global mqtt_client
     state_topic = otp_mqtt_topic + "/state"
     config = {
         "name": "Volvo OTP",
@@ -86,6 +87,7 @@ def create_otp_input():
     )
 
 def set_otp_state():
+    global mqtt_client
     mqtt_client.publish(
         otp_mqtt_topic + "/state",
         otp_code,
@@ -94,6 +96,7 @@ def set_otp_state():
 
 
 def send_car_images(vin, data, device):
+    global mqtt_client
     if util.keys_exists(data, "images"):
         for entity in [{"name": "Exterior Image", "id": "exterior_image"},
                        {"name": "Interior Image", "id": "interior_image"}]:
@@ -140,6 +143,7 @@ def send_car_images(vin, data, device):
 
 
 def on_connect(client, userdata, flags, rc):
+    global mqtt_client
     # set a better name for the mqtt_loop Thread
     threading.current_thread().name = 'mqtt_thread'
     logging.info("MQTT connected")
@@ -264,7 +268,7 @@ def lock_car(vin):
 
     # Force set locking state
     update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "LOCKING"})
-    # Fetch API lock state until locking finished
+    # Fetch API lock state until unlocking finished
     Thread(target=volvo.check_lock_status, args=(vin, "UNLOCKED"), name="check_lock_status_thread").start()
 
 
@@ -329,7 +333,7 @@ def update_loop():
 
 
 def update_car_data(force_update=False, overwrite={}):
-    global last_data_update
+    global last_data_update, mqtt_client
     last_data_update = format_datetime(datetime.now(util.TZ), format="medium", locale=settings["babelLocale"])
     for vin in volvo.vins:
         for entity in volvo.supported_endpoints[vin]:
@@ -391,6 +395,7 @@ def update_car_data(force_update=False, overwrite={}):
 
 
 def update_ha_device(entity, vin, state):
+    global mqtt_client
     icon_config = icon_states.get(entity["id"])
     try:
         if icon_config and state:
@@ -437,14 +442,14 @@ def update_ha_device(entity, vin, state):
         mqtt_client.subscribe(command_topic)
 
     mqtt_client.publish(
-        f"homeassistant/{entity['domain']}/volvoAAOS2mqtt_{vin}_{entity['id']}/config",
+        f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
         json.dumps(config),
         retain=True
     )
 
 
 def create_ha_devices():
-    global subscribed_topics, devices
+    global subscribed_topics, devices, mqtt_client
     for vin in volvo.vins:
         device = volvo.get_vehicle_details(vin)
         devices[vin] = device
@@ -487,7 +492,7 @@ def create_ha_devices():
                 config["url_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/image_url"
 
             mqtt_client.publish(
-                f"homeassistant/{entity['domain']}/volvoAAOS2mqtt_{vin}_{entity['id']}/config",
+                f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
                 json.dumps(config),
                 retain=True
             )
@@ -496,14 +501,17 @@ def create_ha_devices():
 
 
 def send_heartbeat():
+    global mqtt_client
     mqtt_client.publish(availability_topic, "online", retain=True)
 
 
 def send_offline():
+    global mqtt_client
     mqtt_client.publish(availability_topic, "offline", retain=True)
 
 
 def delete_old_entities():
+    global mqtt_client
     for vin in volvo.vins:
         for entity in old_entity_ids:
             topic = f"homeassistant/sensor/volvoAAOS2mqtt/{vin}_{entity}/config"
