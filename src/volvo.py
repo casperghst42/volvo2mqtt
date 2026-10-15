@@ -24,7 +24,7 @@ session.headers = {
     "accept": "*/*"
 }
 
-token_expires_at: datetime
+token_expires_at = None
 refresh_token = None
 vins = []
 supported_endpoints = {}
@@ -313,7 +313,7 @@ def check_vcc_api_key(test_key, extended_until=None):
                             + format_datetime(extended_until, format="medium", locale=settings["babelLocale"]))
             return True, extended_until
 
-    if datetime.now(util.TZ) >= token_expires_at:
+    if token_expires_at and datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
     token = session.headers.get("authorization")
@@ -504,7 +504,7 @@ def get_backend_status():
 
 
 def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False):
-    if datetime.now(util.TZ) >= token_expires_at:
+    if token_expires_at and datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
     if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL,
