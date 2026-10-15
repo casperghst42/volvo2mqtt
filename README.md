@@ -12,8 +12,18 @@
 
 This component establishes a connection between the newer AAOS Volvo cars and Home Assistant via MQTT.<br>
 Maybe this component works also with other Volvo cars. Please try out the native Volvo [integration](https://www.home-assistant.io/integrations/volvooncall/) before using this component! If the native component doesn't work for your car, try this mqtt bridge.
-<p>
 
+## Forked
+<p>
+Foreked to fix the problem with entities are named "unnamed(_xx)". See question about this, [here](https://community.home-assistant.io/t/volvo2mqtt-connect-your-aaos-volvo/585699/509?u=casperghst42)
+
+Fixes: 
+- Commit d88b5ae - fix: add has_entity_name to MQTT config to resolve unnamed device issues
+</p>
+
+
+## Let the show continue<br/>
+<p>
 Home Assistant thread can be found [here](https://community.home-assistant.io/t/volvo2mqtt-connect-your-aaos-volvo/585699).
 
 <b>Important note: The Volvo api currently ONLY works in these [countries](https://developer.volvocars.com/terms-and-conditions/apis-supported-locations/)</b>
