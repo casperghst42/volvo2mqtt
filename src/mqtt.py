@@ -110,8 +110,7 @@ def send_car_images(vin, data, device):
                 "image_topic": image_topic,
                 "device": device,
                 "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
-                "availability_topic": availability_topic,
-                "has_entity_name": True
+                "availability_topic": availability_topic
             }
 
             mqtt_client.publish(
@@ -422,8 +421,7 @@ def update_ha_device(entity, vin, state):
         "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
         "device": devices[vin],
         "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
-        "availability_topic": availability_topic,
-        "has_entity_name": True
+        "availability_topic": availability_topic
     }
     if entity.get("device_class"):
         config["device_class"] = entity["device_class"]
@@ -464,8 +462,7 @@ def create_ha_devices():
                 "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
                 "device": device,
                 "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
-                "availability_topic": availability_topic,
-                "has_entity_name": True
+                "availability_topic": availability_topic
             }
 
             if entity.get("device_class"):
@@ -504,17 +501,14 @@ def create_ha_devices():
 
 
 def send_heartbeat():
-    global mqtt_client
     mqtt_client.publish(availability_topic, "online", retain=True)
 
 
 def send_offline():
-    global mqtt_client
     mqtt_client.publish(availability_topic, "offline", retain=True)
 
 
 def delete_old_entities():
-    global mqtt_client
     for vin in volvo.vins:
         for entity in old_entity_ids:
             topic = f"homeassistant/sensor/volvoAAOS2mqtt/{vin}_{entity}/config"
