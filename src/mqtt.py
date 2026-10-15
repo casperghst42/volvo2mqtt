@@ -64,11 +64,11 @@ def create_otp_input():
     state_topic = otp_mqtt_topic + "/state"
     config = {
         "name": "Volvo OTP",
-        "object_id": "volvo_otp",
+        "object_id": "volvo_text_otp",
         "schema": "state",
         "command_topic": otp_mqtt_topic,
         "state_topic": state_topic,
-        "unique_id": "volvoAAOS2mqtt_otp",
+        "unique_id": "volvoAAOS2mqtt_text_otp",
         "pattern": r"\d{6}",
         "icon": "mdi:two-factor-authentication",
         "mode": "text"
@@ -103,13 +103,13 @@ def send_car_images(vin, data, device):
             image_topic = f"homeassistant/image/{vin}_{entity['id']}/image_topic"
             config = {
                 "name": entity["name"],
-                "object_id": f"volvo_{vin}_{entity['id']}",
+                "object_id": f"volvo_{vin}_image_{entity['id']}",
                 "schema": "state",
                 "icon": "mdi:image-area",
                 "content_type": "image/png",
                 "image_topic": image_topic,
                 "device": device,
-                "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
+                "unique_id": f"volvoAAOS2mqtt_{vin}_image_{entity['id']}",
                 "availability_topic": availability_topic,
                 "has_entity_name": True
             }
@@ -416,12 +416,12 @@ def update_ha_device(entity, vin, state):
     logging.debug("Updating icon to " + icon + " for " + entity["id"])
     config = {
         "name": entity['name'],
-        "object_id": f"volvo_{vin}_{entity['id']}",
+        "object_id": f"volvo_{vin}_{entity['domain']}_{entity['id']}",
         "schema": "state",
         "icon": f"mdi:{icon}" if icon else f"mdi:{entity['icon']}",
         "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
         "device": devices[vin],
-        "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
+        "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['domain']}_{entity['id']}",
         "availability_topic": availability_topic,
         "has_entity_name": True
     }
@@ -458,12 +458,12 @@ def create_ha_devices():
         for entity in volvo.supported_endpoints[vin]:
             config = {
                 "name": entity['name'],
-                "object_id": f"volvo_{vin}_{entity['id']}",
+                "object_id": f"volvo_{vin}_{entity['domain']}_{entity['id']}",
                 "schema": "state",
                 "icon": f"mdi:{entity['icon']}",
                 "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
                 "device": device,
-                "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
+                "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['domain']}_{entity['id']}",
                 "availability_topic": availability_topic,
                 "has_entity_name": True
             }
