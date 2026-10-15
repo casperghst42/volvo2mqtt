@@ -1,6 +1,0 @@
-        device = {
-            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-            "manufacturer": "Volvo",
-            "model": data['descriptions']['model'],
-            "name": f"{data['descriptions']['model']} ({data['modelYear']}) - {vin}",
-        }
