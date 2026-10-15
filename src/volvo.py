@@ -363,26 +363,34 @@ def change_vcc_api_key():
 def get_vehicle_details(vin):
     response = session.get(VEHICLE_DETAILS_URL.format(vin), timeout=15)
     if response.status_code == 200:
-        data = response.json()["data"]
-        logging.debug(response.text)
-        device = {
-            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-            "manufacturer": "Volvo",
-            "model": data['descriptions']['model'],
-            "name": f"{data['descriptions']['model']} ({data['modelYear']}) - {vin}",
-        }
-        mqtt.send_car_images(vin, data, device)
-    elif response.status_code == 500 and not settings.volvoData["vin"]:
-        # Workaround for some cars that are not returning vehicle details
+        try:
+            data = response.json()["data"]
+            logging.debug(response.text)
+            model = data.get('descriptions', {}).get('model', 'Volvo')
+            model_year = data.get('modelYear', '')
+            device_name = f"{model} ({model_year}) - {vin}" if model_year else f"{model} - {vin}"
+            device = {
+                "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                "manufacturer": "Volvo",
+                "model": model,
+                "name": device_name,
+            }
+            mqtt.send_car_images(vin, data, device)
+        except Exception as e:
+            logging.warning(f"Error parsing vehicle details: {e}, using fallback device name")
+            device = {
+                "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                "manufacturer": "Volvo",
+                "model": vin,
+                "name": f"Volvo - {vin}",
+            }
+    else:
         device = {
             "identifiers": [f"volvoAAOS2mqtt_{vin}"],
             "manufacturer": "Volvo",
             "model": vin,
             "name": f"Volvo - {vin}",
         }
-    else:
-        raise Exception("Getting vehicle details failed. Status Code: " + str(response.status_code) +
-                        ". Error: " + response.text)
 
     return device
 
