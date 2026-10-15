@@ -18,7 +18,7 @@ Maybe this component works also with other Volvo cars. Please try out the native
 Foreked to fix the problem with entities are named "unnamed(_xx)". See question about this, [here](https://community.home-assistant.io/t/volvo2mqtt-connect-your-aaos-volvo/585699/509?u=casperghst42)
 
 Fixes: 
-- Commit d88b5ae - fix: add has_entity_name to MQTT config to resolve unnamed device issues
+- Commit [d88b5ae](https://github.com/casperghst42/volvo2mqtt/commit/d88b5ae216a86e3ad740371c3d2d6f9a6ca3e323) - fix: add has_entity_name to MQTT config to resolve unnamed device issues
 </p>
 
 
