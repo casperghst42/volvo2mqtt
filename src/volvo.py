@@ -797,5 +797,3 @@ def parse_api_data(data, sensor_id=None):
             return None
         else:
             return None
-
-
